@@ -1,13 +1,14 @@
 pipeline {
-    agent any
+    agent none
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
         stage('Build Frontend') {
+            agent {
+                docker {
+                    image 'node:20-alpine'
+                    args '-u root'
+                }
+            }
             steps {
                 dir('apps/frontend') {
                     sh 'npm ci'
@@ -16,6 +17,12 @@ pipeline {
             }
         }
         stage('Build Backend') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/dotnet/sdk:10.0'
+                    args '-u root'
+                }
+            }
             steps {
                 dir('apps/backend') {
                     sh 'dotnet restore'
@@ -24,6 +31,12 @@ pipeline {
             }
         }
         stage('Test Backend') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/dotnet/sdk:10.0'
+                    args '-u root'
+                }
+            }
             steps {
                 dir('apps/backend') {
                     sh 'dotnet test'
